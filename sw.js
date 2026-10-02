@@ -1,5 +1,5 @@
 /* 체크 금액 영문 변환기 - 오프라인용 서비스 워커 */
-const CACHE = 'check-amount-writer-v1';
+const CACHE = 'check-amount-writer-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -25,6 +25,19 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // 페이지 이동은 네트워크 우선: 새 버전이 있으면 바로 반영, 실패하면 캐시 사용
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
