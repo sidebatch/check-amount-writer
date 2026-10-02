@@ -1,1 +1,30 @@
-{"background_color":"#eceae3","description":"수표에 쓸 금액을 영문으로 바로 변환해주는 앱","display":"standalone","icons":[{"sizes":"192x192","src":"icons/icon-192.png","type":"image/png"},{"sizes":"512x512","src":"icons/icon-512.png","type":"image/png"},{"purpose":"maskable","sizes":"512x512","src":"icons/maskable-512.png","type":"image/png"}],"lang":"ko","name":"체크 금액 영문 변환기","orientation":"portrait","scope":"./","short_name":"체크금액변환","start_url":"./","theme_color":"#17365d"}
+{
+  "background_color": "#eceae3",
+  "description": "수표에 쓸 금액을 영문으로 바로 변환해주는 앱",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "icons/icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "sizes": "512x512",
+      "src": "icons/icon-512.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "icons/maskable-512.png",
+      "type": "image/png"
+    }
+  ],
+  "lang": "ko",
+  "name": "Check Amount in Words",
+  "orientation": "portrait",
+  "scope": "./",
+  "short_name": "Check Amount",
+  "start_url": "./",
+  "theme_color": "#17365d"
+}

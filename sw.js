@@ -1,5 +1,5 @@
 /* 체크 금액 영문 변환기 - 오프라인용 서비스 워커 */
-const CACHE = 'check-amount-writer-v2';
+const CACHE = 'check-amount-writer-v3';
 const ASSETS = [
   './',
   './index.html',
