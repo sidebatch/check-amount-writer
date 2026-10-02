@@ -514,6 +514,7 @@
               id="amountInput"
               type="text"
               inputmode="decimal"
+              enterkeyhint="done"
               autocomplete="off"
               autocapitalize="off"
               spellcheck="false"
@@ -527,10 +528,6 @@
         <div class="examples">
           <span class="label" id="examplesLabel">예시</span>
           <button class="chip" type="button" data-example="723.84">723.84</button>
-          <button class="chip" type="button" data-example="1250">1,250</button>
-          <button class="chip" type="button" data-example="1000000">1,000,000</button>
-          <button class="chip" type="button" data-example="45.05">45.05</button>
-          <button class="chip" type="button" data-example="0.99">0.99</button>
         </div>
       </section>
 
@@ -837,6 +834,13 @@
         }
 
         input.addEventListener("input", render);
+        // Mobile keyboard "Go"/Enter: dismiss the keyboard by releasing focus.
+        input.addEventListener("keydown", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            input.blur();
+          }
+        });
         document.getElementById("clearBtn").addEventListener("click", function () {
           input.value = "";
           render();
