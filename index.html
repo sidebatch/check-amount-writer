@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>체크 금액 영문 변환기</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <meta name="theme-color" content="#17365d" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -12,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="체크 금액 변환" />
     <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
-    <title>체크 금액 영문 변환기</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" />
@@ -281,8 +283,9 @@
         white-space: nowrap;
       }
       .date-row .val {
-        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
         font-size: 16px;
+        font-weight: 600;
         color: var(--ink-written);
         border-bottom: 1.5px solid #b9c6dd;
         padding: 0 6px 2px;
@@ -351,9 +354,9 @@
         gap: 10px;
       }
       .words-frac {
-        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
         font-size: clamp(16px, 4vw, 19px);
-        font-weight: 400;
+        font-weight: 600;
         color: var(--ink-written);
         white-space: nowrap;
       }
@@ -900,7 +903,7 @@
         render();
       })();
     </script>
-    <script>
+      <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('./sw.js').catch(function () {});
