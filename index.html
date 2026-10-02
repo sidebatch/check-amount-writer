@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#17365d" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="체크 금액 변환" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <title>체크 금액 영문 변환기</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #eceae3;
+        --ink: #1c2a3a;
+        --ink-soft: #55637a;
+        --desk-line: #cfcabf;
+        --paper: #fdfcf7;
+        --paper-edge: #d9d2c0;
+        --check-accent: #17365d;
+        --check-accent-soft: #e8eef6;
+        --ink-written: #1e3f73;
+        --input-bg: #ffffff;
+        --input-border: #b9b3a4;
+        --input-focus: #17365d;
+        --btn-primary: #17365d;
+        --btn-primary-text: #ffffff;
+        --btn-ghost-border: #b9b3a4;
+        --btn-ghost-text: #1c2a3a;
+        --hint: #7a7466;
+        --error: #b3261e;
+        --ok: #1f6f43;
+        --chip-bg: #ffffff;
+        --chip-border: #d5d0c2;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14181f;
+          --ink: #e8e6de;
+          --ink-soft: #a7b0c0;
+          --desk-line: #262c38;
+          --paper: #f4f1e6;
+          --paper-edge: #c9c2ab;
+          --check-accent: #17365d;
+          --check-accent-soft: #dde6f2;
+          --ink-written: #1e3f73;
+          --input-bg: #1e242f;
+          --input-border: #3a4356;
+          --input-focus: #8fb4e8;
+          --btn-primary: #8fb4e8;
+          --btn-primary-text: #10141d;
+          --btn-ghost-border: #3a4356;
+          --btn-ghost-text: #e8e6de;
+          --hint: #8a93a5;
+          --error: #f2b8b5;
+          --ok: #7ed3a0;
+          --chip-bg: #1e242f;
+          --chip-border: #3a4356;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .page {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+      }
+      h1 {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 600;
+        font-size: 22px;
+        line-height: 1.15;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+      .lang-toggle {
+        display: flex;
+        flex: 0 0 auto;
+        border: 1.5px solid var(--btn-ghost-border);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .lang-toggle button {
+        border: 0;
+        background: transparent;
+        color: var(--ink-soft);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        padding: 7px 14px;
+        cursor: pointer;
+      }
+      .lang-toggle button.active {
+        background: var(--btn-primary);
+        color: var(--btn-primary-text);
+      }
+      .lang-toggle button:focus-visible {
+        outline: 2px solid var(--input-focus);
+        outline-offset: -2px;
+      }
+
+      /* ---------- input panel ---------- */
+      .input-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+      .amount-row {
+        display: flex;
+        gap: 10px;
+      }
+      .amount-field {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        background: var(--input-bg);
+        border: 1.5px solid var(--input-border);
+        border-radius: 10px;
+        padding: 0 16px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      .amount-field:focus-within {
+        border-color: var(--input-focus);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-focus) 18%, transparent);
+      }
+      .amount-field .dollar {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 22px;
+        color: var(--ink-soft);
+        margin-right: 8px;
+        user-select: none;
+      }
+      .amount-field input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: var(--ink);
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: clamp(22px, 5.6vw, 28px);
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        padding: 14px 0;
+      }
+      .amount-field input::placeholder { color: var(--hint); font-weight: 500; }
+      .clear-btn {
+        flex: 0 0 auto;
+        align-self: stretch;
+        border: 1.5px solid var(--btn-ghost-border);
+        background: transparent;
+        color: var(--btn-ghost-text);
+        border-radius: 10px;
+        padding: 0 18px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .clear-btn:hover { border-color: var(--ink-soft); }
+      .status-line {
+        min-height: 20px;
+        font-size: 13.5px;
+        color: var(--hint);
+      }
+      .status-line.error { color: var(--error); }
+
+      .examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .examples .label {
+        font-size: 12.5px;
+        color: var(--hint);
+        font-weight: 600;
+        margin-right: 2px;
+      }
+      .chip {
+        border: 1px solid var(--chip-border);
+        background: var(--chip-bg);
+        color: var(--ink);
+        border-radius: 999px;
+        padding: 7px 13px;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .chip:hover { border-color: var(--ink-soft); }
+      .chip:focus-visible, .clear-btn:focus-visible {
+        outline: 2px solid var(--input-focus);
+        outline-offset: 2px;
+      }
+
+      /* ---------- the check ---------- */
+      .check-wrap { margin-top: 8px; }
+      .check {
+        background: var(--paper);
+        border: 1px solid var(--paper-edge);
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(20, 25, 35, 0.08), 0 14px 32px -18px rgba(20, 25, 35, 0.35);
+        padding: 26px 26px 20px;
+        color: #22304a;
+        position: relative;
+        overflow: hidden;
+      }
+      .check::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(0deg, rgba(23, 54, 93, 0.045) 0 1px, transparent 1px 26px);
+        pointer-events: none;
+      }
+      .check-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        position: relative;
+      }
+      .bank-name {
+        font-family: "Fraunces", Georgia, serif;
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--check-accent);
+      }
+      .bank-sub {
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #7d8aa5;
+        margin-top: 3px;
+      }
+      .check-no {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 12.5px;
+        color: #7d8aa5;
+        white-space: nowrap;
+      }
+      .date-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: baseline;
+        gap: 10px;
+        margin-top: 18px;
+        position: relative;
+      }
+      .date-row .lbl, .pay-row .lbl, .memo-row .lbl {
+        font-size: 10.5px;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        color: #7d8aa5;
+        white-space: nowrap;
+      }
+      .date-row .val {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 16px;
+        color: var(--ink-written);
+        border-bottom: 1.5px solid #b9c6dd;
+        padding: 0 6px 2px;
+        min-width: 150px;
+        text-align: right;
+      }
+      .pay-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-top: 22px;
+        position: relative;
+      }
+      .pay-blank {
+        flex: 1;
+        border-bottom: 1.5px solid #b9c6dd;
+        min-height: 26px;
+      }
+      .amount-box {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--check-accent);
+        border-radius: 3px;
+        background: var(--check-accent-soft);
+        padding: 6px 12px;
+        gap: 6px;
+      }
+      .amount-box .cur {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 16px;
+        color: var(--check-accent);
+      }
+      .amount-box .num {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--ink-written);
+        min-width: 84px;
+        text-align: right;
+      }
+      .words-row {
+        margin-top: 20px;
+        position: relative;
+      }
+      .words-line {
+        border-bottom: 1.5px solid #b9c6dd;
+        padding: 0 4px 5px;
+        min-height: 32px;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .words-text {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(17px, 4.4vw, 21px);
+        font-weight: 500;
+        color: var(--ink-written);
+        line-height: 1.35;
+      }
+      .words-end {
+        margin-left: auto;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .words-frac {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(16px, 4vw, 19px);
+        font-weight: 500;
+        color: var(--ink-written);
+        white-space: nowrap;
+      }
+      .words-dollars {
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #93a3bd;
+      }
+      .memo-row {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-top: 20px;
+        position: relative;
+      }
+      .memo-blank {
+        flex: 0 1 240px;
+        border-bottom: 1.5px solid #b9c6dd;
+        min-height: 22px;
+      }
+      .sig-blank {
+        margin-left: auto;
+        flex: 0 1 220px;
+        border-bottom: 1.5px solid #b9c6dd;
+        min-height: 22px;
+        position: relative;
+      }
+      .sig-blank::after {
+        content: "✕";
+        position: absolute;
+        left: -16px;
+        bottom: 1px;
+        font-size: 11px;
+        color: #93a3bd;
+      }
+      .micr {
+        margin-top: 22px;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 12px;
+        letter-spacing: 0.28em;
+        color: #8b98b0;
+        position: relative;
+      }
+
+      /* ---------- outputs ---------- */
+      .outputs { margin-top: 26px; display: flex; flex-direction: column; gap: 14px; }
+      .out-card {
+        background: var(--input-bg);
+        border: 1px solid var(--desk-line);
+        border-radius: 10px;
+        padding: 16px 18px;
+      }
+      .out-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .out-head h2 {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin: 0;
+      }
+      .out-head .tag {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--ok);
+        border: 1px solid color-mix(in srgb, var(--ok) 45%, transparent);
+        border-radius: 999px;
+        padding: 2px 8px;
+      }
+      .tap-hint {
+        margin-left: auto;
+        font-size: 11.5px;
+        font-weight: 500;
+        color: var(--hint);
+        white-space: nowrap;
+      }
+      .out-text {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(16px, 4.2vw, 19px);
+        line-height: 1.5;
+        margin: 0;
+        word-break: break-word;
+        cursor: pointer;
+        border-radius: 6px;
+        padding: 6px 8px;
+        margin: -6px -8px;
+        transition: background-color 0.15s ease;
+      }
+      .out-text:hover { background: color-mix(in srgb, var(--input-focus) 7%, transparent); }
+      .out-text:focus-visible {
+        outline: 2px solid var(--input-focus);
+        outline-offset: 1px;
+      }
+      .out-text:empty::before {
+        content: attr(data-empty);
+        color: var(--hint);
+        font-family: "Archivo", system-ui, sans-serif;
+        font-size: 14px;
+      }
+
+      .howto {
+        margin-top: 34px;
+        border-top: 1px solid var(--desk-line);
+        padding-top: 20px;
+      }
+      .howto h2 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 10px;
+      }
+      .howto ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--ink-soft);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+      .howto code {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.9em;
+        color: var(--ink);
+      }
+
+      @media (max-width: 560px) {
+        .page { padding: 20px 14px 44px; }
+        .check { padding: 20px 16px 16px; }
+        .amount-row { flex-direction: column; }
+        .clear-btn { padding: 10px 18px; align-self: auto; }
+        .date-row .val { min-width: 120px; }
+        .words-end { width: 100%; justify-content: flex-end; }
+        .sig-blank { flex-basis: 150px; }
+        .memo-blank { flex-basis: 130px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="top-bar">
+        <h1 id="appTitle">체크 금액 영문 변환기</h1>
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" id="langEn" aria-pressed="false">EN</button>
+          <button type="button" id="langKr" class="active" aria-pressed="true">KR</button>
+        </div>
+      </header>
+
+      <section class="input-panel" id="amountSection" aria-label="금액 입력">
+        <div class="amount-row">
+          <label class="amount-field">
+            <span class="dollar" aria-hidden="true">$</span>
+            <input
+              id="amountInput"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="723.84"
+              aria-label="금액 숫자 입력"
+            />
+          </label>
+          <button class="clear-btn" id="clearBtn" type="button">지우기</button>
+        </div>
+        <div class="status-line" id="statusLine" role="status" aria-live="polite"></div>
+        <div class="examples">
+          <span class="label" id="examplesLabel">예시</span>
+          <button class="chip" type="button" data-example="723.84">723.84</button>
+          <button class="chip" type="button" data-example="1250">1,250</button>
+          <button class="chip" type="button" data-example="1000000">1,000,000</button>
+          <button class="chip" type="button" data-example="45.05">45.05</button>
+          <button class="chip" type="button" data-example="0.99">0.99</button>
+        </div>
+      </section>
+
+      <section class="check-wrap" id="checkSection" aria-label="수표 미리보기">
+        <div class="check" id="checkPreview" role="img" aria-label="입력한 금액이 적힌 수표 미리보기">
+          <div class="check-top">
+            <div>
+              <div class="bank-name">First Example Bank</div>
+              <div class="bank-sub">123 Sample Street · Anytown</div>
+            </div>
+            <div class="check-no">No. 1024</div>
+          </div>
+          <div class="date-row">
+            <span class="lbl">Date</span>
+            <span class="val" id="checkDate"></span>
+          </div>
+          <div class="pay-row">
+            <span class="lbl">Pay to the order of</span>
+            <span class="pay-blank"></span>
+            <span class="amount-box"><span class="cur">$</span><span class="num" id="checkNumBox">—</span></span>
+          </div>
+          <div class="words-row">
+            <div class="words-line">
+              <span class="words-text" id="checkWords">숫자를 입력하세요</span>
+              <span class="words-end"><span class="words-frac" id="checkFrac"></span><span class="words-dollars">Dollars</span></span>
+            </div>
+          </div>
+          <div class="memo-row">
+            <span class="lbl">Memo</span>
+            <span class="memo-blank"></span>
+            <span class="sig-blank"></span>
+          </div>
+          <div class="micr">⑆102400123⑆ ⑈456789012⑈ 1024</div>
+        </div>
+      </section>
+
+      <section class="outputs" id="outputsSection" aria-label="변환 결과">
+        <div class="out-card">
+          <div class="out-head">
+            <h2 id="outCheckTitle">수표 표기 (표준)</h2>
+            <span class="tag" id="outCheckTag">수표에 그대로</span>
+            <span class="tap-hint" data-hint>탭하면 복사</span>
+          </div>
+          <p class="out-text" id="outCheck" tabindex="0" role="button" aria-label="수표 표기 복사" title="탭하면 복사" data-empty="숫자를 입력하면 여기에 표시됩니다"></p>
+        </div>
+        <div class="out-card">
+          <div class="out-head">
+            <h2 id="outFullTitle">영어로 읽는 금액</h2>
+            <span class="tap-hint" data-hint>탭하면 복사</span>
+          </div>
+          <p class="out-text" id="outFull" tabindex="0" role="button" aria-label="영어로 읽는 금액 복사" title="탭하면 복사" data-empty="숫자를 입력하면 여기에 표시됩니다"></p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var ONES = ["zero","one","two","three","four","five","six","seven","eight","nine",
+          "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+        var TENS = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+        var SCALES = ["", "thousand", "million", "billion", "trillion", "quadrillion", "quintillion"];
+
+        function underThousand(n) {
+          var parts = [];
+          if (n >= 100) {
+            parts.push(ONES[Math.floor(n / 100)] + " hundred");
+            n = n % 100;
+          }
+          if (n >= 20) {
+            var t = TENS[Math.floor(n / 10)];
+            var r = n % 10;
+            parts.push(r ? t + "-" + ONES[r] : t);
+          } else if (n > 0) {
+            parts.push(ONES[n]);
+          }
+          return parts.join(" ");
+        }
+
+        function numberToWords(n) {
+          if (n === 0) return "zero";
+          var groups = [];
+          var i = 0;
+          while (n > 0) {
+            var chunk = n % 1000;
+            if (chunk > 0) {
+              var w = underThousand(chunk);
+              if (SCALES[i]) w += " " + SCALES[i];
+              groups.unshift(w);
+            }
+            n = Math.floor(n / 1000);
+            i++;
+          }
+          return groups.join(" ");
+        }
+
+        function capitalize(s) {
+          return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function formatWithCommas(intStr) {
+          return intStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Parse the raw input. Returns { ok, message, dollars, cents, intPart, decPart }.
+        function parseAmount(raw) {
+          var cleaned = raw.replace(/[$,\s]/g, "");
+          if (cleaned === "") return { ok: false, empty: true };
+
+          if (!/^[0-9]*\.?[0-9]*$/.test(cleaned) || cleaned === ".") {
+            // Distinguish "not a number" from "too many decimals".
+            if (/^[0-9]+\.[0-9]{3,}$/.test(cleaned)) {
+              return { ok: false, msgKey: "decimals" };
+            }
+            return { ok: false, msgKey: "nonumber" };
+          }
+
+          var parts = cleaned.split(".");
+          var intPart = parts[0] === "" ? "0" : parts[0];
+          var decPart = parts.length > 1 ? parts[1] : "";
+          if (decPart.length > 2) {
+            return { ok: false, msgKey: "decimals" };
+          }
+          if (intPart.length > 15) {
+            return { ok: false, msgKey: "toolarge" };
+          }
+          decPart = (decPart + "00").slice(0, 2);
+
+          var dollars = parseInt(intPart, 10);
+          var cents = parseInt(decPart, 10);
+          if (isNaN(dollars) || isNaN(cents)) {
+            return { ok: false, msgKey: "nonumber" };
+          }
+          return { ok: true, dollars: dollars, cents: cents, intPart: intPart, decPart: decPart };
+        }
+
+        function checkForm(dollars, cents) {
+          return capitalize(numberToWords(dollars)) + " " +
+            String(cents).padStart(2, "0") + "/100";
+        }
+
+        function fullForm(dollars, cents) {
+          var d = capitalize(numberToWords(dollars)) + (dollars === 1 ? " dollar" : " dollars");
+          if (cents === 0) return d;
+          var c = numberToWords(cents) + (cents === 1 ? " cent" : " cents");
+          return d + " and " + c;
+        }
+
+        var input = document.getElementById("amountInput");
+        var statusLine = document.getElementById("statusLine");
+        var checkNumBox = document.getElementById("checkNumBox");
+        var checkWords = document.getElementById("checkWords");
+        var checkFrac = document.getElementById("checkFrac");
+        var outCheck = document.getElementById("outCheck");
+        var outFull = document.getElementById("outFull");
+
+        var STR = {
+          ko: {
+            title: "체크 금액 영문 변환기",
+            amountSection: "금액 입력",
+            checkSection: "수표 미리보기",
+            outputsSection: "변환 결과",
+            clear: "지우기",
+            examples: "예시",
+            inputLabel: "금액 숫자 입력",
+            checkPreviewLabel: "입력한 금액이 적힌 수표 미리보기",
+            checkTitle: "수표 표기 (표준)",
+            checkTag: "수표에 그대로",
+            fullTitle: "영어로 읽는 금액",
+            tapCopy: "탭하면 복사",
+            copied: "복사됨 ✓",
+            outputEmpty: "숫자를 입력하면 여기에 표시됩니다",
+            enterAmount: "숫자를 입력하세요",
+            decimals: "소수점은 두 자리(센트)까지만 입력할 수 있어요.",
+            nonumber: "숫자와 소수점만 입력해 주세요.",
+            toolarge: "금액이 너무 큽니다. 15자리까지만 입력할 수 있어요.",
+            checkCopyLabel: "수표 표기 복사",
+            fullCopyLabel: "영어로 읽는 금액 복사"
+          },
+          en: {
+            title: "Check Amount in Words",
+            amountSection: "Amount input",
+            checkSection: "Check preview",
+            outputsSection: "Results",
+            clear: "Clear",
+            examples: "Examples",
+            inputLabel: "Amount in numbers",
+            checkPreviewLabel: "Check preview with the amount you entered",
+            checkTitle: "Check form (standard)",
+            checkTag: "As written on checks",
+            fullTitle: "How it reads",
+            tapCopy: "Tap to copy",
+            copied: "Copied ✓",
+            outputEmpty: "Type a number to see it here",
+            enterAmount: "Enter an amount",
+            decimals: "Use at most two decimal places (cents).",
+            nonumber: "Numbers and a decimal point only.",
+            toolarge: "That amount is too large — 15 digits max.",
+            checkCopyLabel: "Copy check form",
+            fullCopyLabel: "Copy spoken form"
+          }
+        };
+        var lang = "ko";
+
+        // Today's real date in the check's own format: DD MM YYYY.
+        // Uses the device's own clock, so PC and phone both show their real date.
+        var now = new Date();
+        function pad2(n) { return (n < 10 ? "0" : "") + n; }
+        document.getElementById("checkDate").textContent =
+          pad2(now.getDate()) + " " + pad2(now.getMonth() + 1) + " " + now.getFullYear();
+
+        var lastValid = null; // {check, full} strings for copying
+
+        function render() {
+          var r = parseAmount(input.value);
+
+          if (r.empty) {
+            lastValid = null;
+            statusLine.textContent = "";
+            statusLine.classList.remove("error");
+            checkNumBox.textContent = "—";
+            checkWords.textContent = STR[lang].enterAmount;
+            checkFrac.textContent = "";
+            outCheck.textContent = "";
+            outFull.textContent = "";
+            return;
+          }
+          if (!r.ok) {
+            lastValid = null;
+            statusLine.textContent = STR[lang][r.msgKey];
+            statusLine.classList.add("error");
+            checkNumBox.textContent = "—";
+            checkWords.textContent = STR[lang].enterAmount;
+            checkFrac.textContent = "";
+            outCheck.textContent = "";
+            outFull.textContent = "";
+            return;
+          }
+
+          var cf = checkForm(r.dollars, r.cents);
+          var ff = fullForm(r.dollars, r.cents);
+          lastValid = { check: cf, full: ff };
+
+          checkNumBox.textContent = formatWithCommas(r.intPart) + "." + r.decPart;
+          checkWords.textContent = capitalize(numberToWords(r.dollars));
+          checkFrac.textContent = String(r.cents).padStart(2, "0") + "/100";
+          outCheck.textContent = cf;
+          outFull.textContent = ff;
+
+          // Magnitude guidance for large amounts.
+          if (r.dollars >= 10000) {
+            if (lang === "ko") {
+              var man = Math.floor(r.dollars / 10000);
+              var rest = r.dollars % 10000;
+              statusLine.textContent = "약 " + man.toLocaleString("en-US") + "만" +
+                (rest ? " " + rest.toLocaleString("en-US") : "") + "달러입니다.";
+            } else {
+              statusLine.textContent = "About $" + formatWithCommas(r.intPart) + "." + r.decPart;
+            }
+          } else {
+            statusLine.textContent = "";
+          }
+          statusLine.classList.remove("error");
+        }
+
+        // Tap (or Enter) the English text itself to copy it.
+        function copyText(getText, hintEl) {
+          var text = getText();
+          if (!text) return;
+          var prev = hintEl.textContent;
+          function done() {
+            hintEl.textContent = STR[lang].copied;
+            window.clearTimeout(hintEl._t);
+            hintEl._t = window.setTimeout(function () { hintEl.textContent = prev; }, 1600);
+          }
+          function fallback() {
+            var ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand("copy"); done(); } catch (e) { /* ignore */ }
+            document.body.removeChild(ta);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done, fallback);
+          } else {
+            fallback();
+          }
+        }
+
+        function bindTapToCopy(el, getText) {
+          var hintEl = el.closest(".out-card").querySelector("[data-hint]");
+          function fire() { copyText(getText, hintEl); }
+          el.addEventListener("click", fire);
+          el.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              fire();
+            }
+          });
+        }
+
+        input.addEventListener("input", render);
+        document.getElementById("clearBtn").addEventListener("click", function () {
+          input.value = "";
+          render();
+          input.focus();
+        });
+        bindTapToCopy(outCheck, function () { return lastValid ? lastValid.check : ""; });
+        bindTapToCopy(outFull, function () { return lastValid ? lastValid.full : ""; });
+
+        var chips = document.querySelectorAll("[data-example]");
+        for (var i = 0; i < chips.length; i++) {
+          chips[i].addEventListener("click", function () {
+            input.value = this.getAttribute("data-example");
+            render();
+            input.focus();
+          });
+        }
+
+        var langEn = document.getElementById("langEn");
+        var langKr = document.getElementById("langKr");
+
+        function applyLang() {
+          var t = STR[lang];
+          document.documentElement.lang = lang === "ko" ? "ko" : "en";
+          document.title = t.title;
+          document.getElementById("appTitle").textContent = t.title;
+          document.getElementById("amountSection").setAttribute("aria-label", t.amountSection);
+          document.getElementById("checkSection").setAttribute("aria-label", t.checkSection);
+          document.getElementById("outputsSection").setAttribute("aria-label", t.outputsSection);
+          document.getElementById("clearBtn").textContent = t.clear;
+          document.getElementById("examplesLabel").textContent = t.examples;
+          input.setAttribute("aria-label", t.inputLabel);
+          document.getElementById("checkPreview").setAttribute("aria-label", t.checkPreviewLabel);
+          document.getElementById("outCheckTitle").textContent = t.checkTitle;
+          document.getElementById("outCheckTag").textContent = t.checkTag;
+          document.getElementById("outFullTitle").textContent = t.fullTitle;
+          var hints = document.querySelectorAll("[data-hint]");
+          for (var i = 0; i < hints.length; i++) hints[i].textContent = t.tapCopy;
+          outCheck.setAttribute("data-empty", t.outputEmpty);
+          outFull.setAttribute("data-empty", t.outputEmpty);
+          outCheck.setAttribute("aria-label", t.checkCopyLabel);
+          outFull.setAttribute("aria-label", t.fullCopyLabel);
+          outCheck.title = t.tapCopy;
+          outFull.title = t.tapCopy;
+          langEn.classList.toggle("active", lang === "en");
+          langKr.classList.toggle("active", lang === "ko");
+          langEn.setAttribute("aria-pressed", lang === "en" ? "true" : "false");
+          langKr.setAttribute("aria-pressed", lang === "ko" ? "true" : "false");
+          render();
+        }
+
+        langEn.addEventListener("click", function () {
+          if (lang === "en") return;
+          lang = "en";
+          applyLang();
+        });
+        langKr.addEventListener("click", function () {
+          if (lang === "ko") return;
+          lang = "ko";
+          applyLang();
+        });
+
+        // Prefill the amount from the user's check photo so the page demonstrates itself.
+        input.value = "836.42";
+        render();
+      })();
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('./sw.js').catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>
